@@ -1,203 +1,175 @@
 import pygame
-import sys
+import random
+from character import Character
+
 pygame.init()
 
-clock = pygame.time.Clock()
-fps = 60
+def game_screen(window, player_list, ai_list):
+    clock = pygame.time.Clock()
+    fps = 60
 
-#game window
-screen = pygame.display.set_mode((1600, 800),)
+    # Game window
+    screen = pygame.display.set_mode((1600, 800))
+    WIDTH, HEIGHT = screen.get_width(), screen.get_height()
+    pygame.display.set_caption('Battle')
 
-WIDTH, HEIGHT = screen.get_width(), screen.get_height()
+    # Load images
+    background_img = pygame.image.load('images/background/mainmenu.png').convert_alpha()
+    background_img = pygame.transform.scale(background_img, (screen.get_width(), screen.get_height()))
+    panel_img = pygame.image.load('images/icons/panel.png').convert_alpha()
+    panel_img = pygame.transform.scale(panel_img, (screen.get_width(), 150))
 
-screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption('Battle')
-action_cooldown=0
-action_wait_time= 90
+    # Fonts
+    font = pygame.font.Font(None, 74)
+    small_font = pygame.font.Font(None, 36)
 
+    # Function for drawing background
+    def draw_bg():
+        screen.blit(background_img, (0, 0))
 
-#load images
-#background image
-background_img = pygame.image.load('images/background/mainmenu.png').convert_alpha()
-background_img = pygame.transform.scale(background_img, (screen.get_width(), screen.get_height()))
-#panel image
-panel_img = pygame.image.load('images/icons/panel.png').convert_alpha()
-panel_img = pygame.transform.scale(panel_img, (screen.get_width(),350))
+    # Function for drawing panel
+    def draw_panel():
+        screen.blit(panel_img, (0, HEIGHT - 150))
 
+    def draw_end_screen(message):
+        # Draw the semi-transparent overlay
+        overlay = pygame.Surface((WIDTH, HEIGHT))
+        overlay.set_alpha(128)  # Adjust the transparency level (0-255)
+        overlay.fill((255, 255, 255))
+        screen.blit(overlay, (0, 0))
 
-#function for drawing background
-def draw_bg():
-	screen.blit(background_img, (0, 0))
+        text = font.render(message, True, (0, 0, 0))
+        text_rect = text.get_rect(center=(WIDTH // 2, HEIGHT // 3))
+        screen.blit(text, text_rect)
 
+        restart_btn = pygame.Rect(WIDTH // 4, HEIGHT // 2, WIDTH // 2, 50)
+        main_menu_btn = pygame.Rect(WIDTH // 4, HEIGHT // 2 + 100, WIDTH // 2, 50)
 
-#function for drawing panel
-def draw_panel():
-	bottom_panel = 150
-	screen.blit(panel_img, (0, HEIGHT - bottom_panel))
+        pygame.draw.rect(screen, (0, 0, 0), restart_btn)
+        draw_text("Restart", small_font, (255, 255, 255), screen, WIDTH // 2, HEIGHT // 2 + 25)
+        pygame.draw.rect(screen, (0, 0, 0), main_menu_btn)
+        draw_text("Main Menu", small_font, (255, 255, 255), screen, WIDTH // 2, HEIGHT // 2 + 125)
 
+        pygame.display.update()
 
-#fighter class
-class Character():
-    def attack(self,target):
-       target.hp-=1
-	
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    return "quit"
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    mouse_pos = event.pos
+                    if restart_btn.collidepoint(mouse_pos):
+                        return "restart"
+                    if main_menu_btn.collidepoint(mouse_pos):
+                        return "main_menu"
 
-    def update(self,hp,exp,lvl):
-       self.hp=hp
-       self.exp=exp
-       self.lvl=lvl
-	
-    def __init__(self, side,name, max_hp, strength,position):
-        self.name = name
-        self.max_hp = max_hp
-        self.hp = max_hp
-        self.strength = strength
+    def draw_text(text, font, color, surface, x, y):
+        text_obj = font.render(text, True, color)
+        text_rect = text_obj.get_rect()
+        text_rect.center = (x, y)
+        surface.blit(text_obj, text_rect)
+    
+    # AI attack timing variables
+    ai_attack_delay = 1000  # Delay in milliseconds (4 seconds)
+    last_attack_time = 0
+    player_attacked = False
+
+    def trigger_ai_attack():
+        nonlocal last_attack_time, player_attacked
+        player_attacked = False
+        last_attack_time = pygame.time.get_ticks()
+
+    def update_ai_attack():
+        nonlocal last_attack_time, player_attacked
+        if player_attacked:
+            current_time = pygame.time.get_ticks()
+            if current_time - last_attack_time > ai_attack_delay:
+                last_attack_time = current_time
+                # AI's turn to attack
+                if ai_characters and player_characters:  # Ensure there are characters to attack
+                    ai_attacker = random.choice(ai_characters)
+                    player_target = random.choice(player_characters)
+                    ai_attacker.attack(player_target, screen)
+                    print(f"{ai_attacker.name} attacks {player_target.name}")
+                    
+                    # Check if the attacked player character is dead
+                    if player_target.hp <= 0:
+                        player_characters.remove(player_target)
+                    player_attacked = False  # Reset the flag after AI attacks
+
+    run = True
+
+    # Create player characters
+    player_characters = player_list
+
+    # Create AI characters
+    ai_characters = ai_list
+
+    selected_character = None
+
+    while run:
+        clock.tick(fps)
+        draw_bg()
+        draw_panel()
+
+        # Draw characters
+        for char in player_characters + ai_characters:
+            if char.alive:
+                char.draw(screen)
+                char.update()
+            else:
+                if char.side == "player":
+                    player_characters.remove(char)
+                elif char.side == "ai":
+                    ai_characters.remove(char)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:  # Left mouse button
+                pos = pygame.mouse.get_pos()
+                # Check if a player character was clicked
+                for char in player_characters:
+                    if char.is_clicked(pos):
+                        if selected_character:
+                            selected_character.selected = False  # Deselect previously selected character
+                        selected_character = char
+                        selected_character.selected = True  # Select the clicked character
+                        break
+                else:  # If no player character was clicked
+                    # Check if an enemy was clicked
+                    for char in ai_characters:
+                        if char.is_clicked(pos):
+                            # Player's attack logic
+                            if selected_character:
+                                selected_character.attack(char, screen)
+                                print(f"{selected_character.name} attacks {char.name}")
+                                selected_character.selected = False  # Deselect after attack
+                                selected_character = None
+
+                                # Check if the attacked AI character is dead
+                                if char.hp <= 0:
+                                    ai_characters.remove(char)
+
+                                # Trigger AI attack with a delay after player attacks
+                                if ai_characters:
+                                    
+                                    trigger_ai_attack()
+                                    player_attacked = True
+
+                            break
+
+        # Check if the game is over
+        if not player_characters:
+            return draw_end_screen("You Lost!")
+        elif not ai_characters:
+            return draw_end_screen("You Win!")
         
-       
-        self.alive = True
-        img = pygame.image.load(f'images/{self.name}/idle.png')
-        self.image = pygame.transform.scale(img, (img.get_width() * 3, img.get_height() * 3))
-        self.rect = self.image.get_rect()
-        if side == "left":
-            self.rect.center = (100+((position) * 100), HEIGHT - 150-self.image.get_height() // 2)  # Set y position to bottom of screen
-        elif side == "right":
-            self.rect.center = (WIDTH - 100- ((position) * 100), HEIGHT-150 - self.image.get_height() // 2)
-              # Set y position to bottom of screen
-			  
-    
-    def draw(self):
-	    screen.blit(self.image, self.rect)
- 
-		
+        # Update AI attack
+        update_ai_attack()
 
-    
+        pygame.display.update()
 
-		
-    
-    
-		
-
-    
-		
-
-class HealthBar():
-	
-   
-
-	def __init__(self, x, y, hp, max_hp):
-		self.x = x
-		self.y = y
-		self.hp = hp
-		self.max_hp = max_hp
-
-
-	def draw(self, hp):
-		red = (255, 0, 0)
-		green=(0,255,0)
-	    
-		#update with new health
-		self.hp = hp
-	
-		#calculate health ratio
-		ratio = self.hp / self.max_hp
-		pygame.draw.rect(screen, red, (self.x, self.y, 150, 20))
-		pygame.draw.rect(screen, green, (self.x, self.y, 150 * ratio, 20))
-
-class Exp():
-    def __init__(self,x,y,exp,lvl):
-      self.x = x
-      self.y = y
-      self.exp=exp
-      self.lvl = lvl
-    
-    def draw(self,exp,lvl):
-		# Colors
-        WHITE = (255, 255, 255)
-
-        # Font settings
-        font = pygame.font.Font(None, 36)
-        self.exp = exp
-        self.lvl = lvl
-        text_exp = font.render(f"Exp: {self.exp}/100", True, WHITE)
-        text_level = font.render(f"Lvl: {self.lvl}", True, WHITE)
-        
-        # Calculate vertical spacing
-        spacing = 10
-        text_height = text_exp.get_height() + text_level.get_height() + spacing
-        
-        # Position the text vertically centered
-        y_exp = self.y
-        y_level = y_exp + text_exp.get_height() + spacing
-
-        # Draw the text
-        screen.blit(text_level, (self.x, y_exp))
-        screen.blit(text_exp, (self.x, y_level))
-
-	  
-
-	
-	  
-    
-		
-	
-
-        
-		
-	
-
-knight = Character("left",  'knight', 300, 10,1)
-knight2 = Character("left",  'knight', 30, 10,3)
-knight3 = Character("left",  'knight', 30, 10,5)
-
-bandit1 = Character("right", 'bandit', 100, 6, 1)
-bandit2 = Character("right",  'bandit', 20, 6, 3)
-
-bandit_list = []
-bandit_list.append(bandit1)
-bandit_list.append(bandit2)
-
-
-knight_health_bar = HealthBar(140, 800 - 350 + 40, knight.hp, knight.max_hp)
-bandit1_health_bar = HealthBar(550, 800 - 350 + 40, bandit1.hp, bandit1.max_hp)
-bandit2_health_bar = HealthBar(550, 800 - 350 + 100, bandit2.hp, bandit2.max_hp)
-
-exp_display = Exp(140, 800 - 350-30 , 0, 1)
-
-run = True
-while run:
-	
-   
-	clock.tick(fps)
-	#draw background
-	draw_bg()
-
-	#draw panel
-	draw_panel()
-	knight_health_bar.draw(knight.hp)
-    #draw fighters
-	knight.draw()
-	knight2.draw()
-	knight3.draw()
-	exp_display.draw(100,2)
-	
-	for bandit in bandit_list:
-		bandit.draw()
-	bandit1_health_bar.draw(bandit1.hp)
-	action_cooldown+=1
-	if action_cooldown>= action_wait_time:
-		knight.attack(bandit1)
-		action_cooldown=0
-	    
-	    
-	for event in pygame.event.get():
-		if event.type == pygame.QUIT:
-			run = False
-    
-    
-    
-    
-    
-
-	pygame.display.update()
-
-pygame.quit()
+    pygame.quit()
+    return "quit"
