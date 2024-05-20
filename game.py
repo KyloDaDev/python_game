@@ -16,22 +16,25 @@ def game_screen(window, player_list, ai_list):
     # Load images
     background_img = pygame.image.load('images/background/battle_ground.jpg').convert_alpha()
     background_img = pygame.transform.scale(background_img, (screen.get_width(), screen.get_height()))
-    panel_img = pygame.image.load('images/icons/panel.png').convert_alpha()
-    panel_img = pygame.transform.scale(panel_img, (screen.get_width(), 150))
+    
     burger_menu_img = pygame.image.load('images/icons/burger_menu.png').convert_alpha()
     burger_menu_img = pygame.transform.scale(burger_menu_img, (50, 50))
 
     # Fonts
     font = pygame.font.Font(None, 74)
     small_font = pygame.font.Font(None, 36)
+    # Create a semi-transparent overlay
+    overlay = pygame.Surface((WIDTH, HEIGHT))
+    overlay.set_alpha(80)  # Adjust the transparency level (0-255)
+    overlay.fill((0, 0, 0))  # Black color for the overlay
 
     # Function for drawing background
     def draw_bg():
         screen.blit(background_img, (0, 0))
+        screen.blit(overlay, (0, 0))
 
-    # Function for drawing panel
-    def draw_panel():
-        screen.blit(panel_img, (0, HEIGHT - 150))
+
+    
 
     def draw_end_screen(message):
         draw_bg()  # Draw the background instead of the overlay
@@ -115,7 +118,7 @@ def game_screen(window, player_list, ai_list):
     while run:
         clock.tick(fps)
         draw_bg()
-        draw_panel()
+       
 
         # Draw characters
         for char in player_characters + ai_characters:

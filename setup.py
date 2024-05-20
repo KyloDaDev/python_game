@@ -138,12 +138,12 @@ def setup_screen(window):
                     player_characters = []
                     for i, img in enumerate(selected_images):
                         if img == 'wukong':
-                            player_characters.append(Character('player',input_boxes[i].text, 'wukong', 30, "fighter", player_position))
+                            player_characters.append(Character('player',input_boxes[i].text, 'wukong', 100, "fighter", player_position))
                             player_position += 1
                             player_count += 1
                         
                         elif img == 'bajie':
-                            player_characters.append(Character('player',input_boxes[i].text, 'bajie', 30, "tank", player_position))
+                            player_characters.append(Character('player',input_boxes[i].text, 'bajie', 100, "tank", player_position))
                             player_position += 1
                             player_count += 1
                         
@@ -157,7 +157,7 @@ def setup_screen(window):
                         ai_name = f"AI{random.randint(10, 99)}"
                         character_name = random.choice(ai_character_names)
                         ai_position = i  # Adjust this according to your positioning logic
-                        ai_characters.append(Character('ai', ai_name, character_name, 30, 6, ai_position))
+                        ai_characters.append(Character('ai', ai_name, character_name, 100, 6, ai_position))
 
                     return "game",player_characters,ai_characters
                 if back_button_rect.collidepoint(mouse_x, mouse_y):

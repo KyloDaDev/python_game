@@ -15,14 +15,14 @@ class Character():
         atk = 0
         defend=0
         if(self.type=="fighter"):
-            atk=random.randint(5, 20)
+            atk=(random.randint(5, 20)+(self.lvl*self.lvl))
         else:
-            atk =random.randint(1,10)
+            atk =random.randint(1,10)+(self.lvl*self.lvl)
         
         if(target.type=="fighter"):
-            defend=random.randint(1, 10)
+            defend=(random.randint(1, 10)+(target.lvl*target.lvl))
         else:
-            defend=random.randint(5, 15)
+            defend=(random.randint(5, 15)+(target.lvl*target.lvl))
         
         damage = atk-defend+random.randint(-5, 10)
         print("Damage:{damage}")
@@ -76,9 +76,9 @@ class Character():
         
         self.rect = self.image.get_rect()
         if side == "player":
-            self.rect.center = (50 + (position * 100), 600)
+            self.rect.center = (50 + (position * 110), 700)
         elif side == "ai":
-            self.rect.center = (1550 - (position * 100), 600)
+            self.rect.center = (1450 - (position * 110), 700)
 
     def draw(self, screen):
         if self.selected:
@@ -106,11 +106,14 @@ class Character():
         self.attack_image = pygame.transform.scale(attack_image, (small_width, small_height))
         
     def draw_exp_and_level(self, screen):
-        WHITE = (255, 255, 255)
+        if(self.side=="player"):
+            color = (0, 255, 0)
+        else:
+            color = (255, 255, 255)
         font = pygame.font.Font(None, 24)
 
-        text_exp = font.render(f"Exp: {self.exp}/100", True, WHITE)
-        text_lvl = font.render(f"Lvl: {self.lvl}", True, WHITE)
+        text_exp = font.render(f"Exp: {self.exp}/100", True, color)
+        text_lvl = font.render(f"Lvl: {self.lvl}", True, color)
         
         exp_rect = text_exp.get_rect(center=(self.rect.centerx, self.rect.centery - 60))
         lvl_rect = text_lvl.get_rect(center=(self.rect.centerx, self.rect.centery - 80))
@@ -124,14 +127,19 @@ class Character():
 
         # Calculate health ratio
         ratio = self.hp / self.max_hp
-        pygame.draw.rect(screen, red,  (self.rect.x, self.rect.y + self.rect.height, 50, 5))
-        pygame.draw.rect(screen, green, (self.rect.x, self.rect.y + self.rect.height, 50 * ratio, 5))
+        pygame.draw.rect(screen, red,  (self.rect.x, self.rect.y + self.rect.height, 100, 5))
+        pygame.draw.rect(screen, green, (self.rect.x, self.rect.y + self.rect.height, 100 * ratio, 5))
 
     def draw_name(self, screen):
-        WHITE = (255, 255, 255)
+        if(self.side=="player"):
+            color = (0, 255, 0)
+        else:
+            color = (255, 255, 255)
+
+        
         font = pygame.font.Font(None, 24)
-        text_name = font.render(self.name, True, WHITE)
-        name_rect = text_name.get_rect(center=(self.rect.centerx, self.rect.centery +100))
+        text_name = font.render(self.name, True, color)
+        name_rect = text_name.get_rect(center=(self.rect.centerx, self.rect.centery +80))
         screen.blit(text_name, name_rect)
 
     def is_clicked(self, pos):
