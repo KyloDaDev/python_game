@@ -14,10 +14,12 @@ def game_screen(window, player_list, ai_list):
     pygame.display.set_caption('Battle')
 
     # Load images
-    background_img = pygame.image.load('images/background/mainmenu.png').convert_alpha()
+    background_img = pygame.image.load('images/background/battle_ground.jpg').convert_alpha()
     background_img = pygame.transform.scale(background_img, (screen.get_width(), screen.get_height()))
     panel_img = pygame.image.load('images/icons/panel.png').convert_alpha()
     panel_img = pygame.transform.scale(panel_img, (screen.get_width(), 150))
+    burger_menu_img = pygame.image.load('images/icons/burger_menu.png').convert_alpha()
+    burger_menu_img = pygame.transform.scale(burger_menu_img, (50, 50))
 
     # Fonts
     font = pygame.font.Font(None, 74)
@@ -32,11 +34,7 @@ def game_screen(window, player_list, ai_list):
         screen.blit(panel_img, (0, HEIGHT - 150))
 
     def draw_end_screen(message):
-        # Draw the semi-transparent overlay
-        overlay = pygame.Surface((WIDTH, HEIGHT))
-        overlay.set_alpha(128)  # Adjust the transparency level (0-255)
-        overlay.fill((255, 255, 255))
-        screen.blit(overlay, (0, 0))
+        draw_bg()  # Draw the background instead of the overlay
 
         text = font.render(message, True, (0, 0, 0))
         text_rect = text.get_rect(center=(WIDTH // 2, HEIGHT // 3))
@@ -96,6 +94,7 @@ def game_screen(window, player_list, ai_list):
                     # Check if the attacked player character is dead
                     if player_target.hp <= 0:
                         player_characters.remove(player_target)
+                        
                     player_attacked = False  # Reset the flag after AI attacks
 
     run = True
@@ -107,6 +106,11 @@ def game_screen(window, player_list, ai_list):
     ai_characters = ai_list
 
     selected_character = None
+
+    menu_open = False
+    burger_menu_rect = pygame.Rect(WIDTH - 60, 10, 50, 50)
+    resume_btn_rect = pygame.Rect(WIDTH // 2 - 100, HEIGHT // 2 - 60, 200, 50)
+    end_game_btn_rect = pygame.Rect(WIDTH // 2 - 100, HEIGHT // 2 + 10, 200, 50)
 
     while run:
         clock.tick(fps)
@@ -124,41 +128,65 @@ def game_screen(window, player_list, ai_list):
                 elif char.side == "ai":
                     ai_characters.remove(char)
 
+        # Draw burger menu button
+        screen.blit(burger_menu_img, burger_menu_rect.topleft)
+
+        # Draw menu options if menu is open
+        if menu_open:
+            # Draw the semi-transparent overlay
+            overlay = pygame.Surface((WIDTH, HEIGHT))
+            overlay.set_alpha(128)  # Adjust the transparency level (0-255)
+            overlay.fill((0, 0, 0))
+            screen.blit(overlay, (0, 0))
+
+            pygame.draw.rect(screen, (255, 255, 255), resume_btn_rect)
+            draw_text("Resume", small_font, (0, 0, 0), screen, resume_btn_rect.centerx, resume_btn_rect.centery)
+            pygame.draw.rect(screen, (255, 255, 255), end_game_btn_rect)
+            draw_text("End Game", small_font, (0, 0, 0), screen, end_game_btn_rect.centerx, end_game_btn_rect.centery)
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:  # Left mouse button
                 pos = pygame.mouse.get_pos()
-                # Check if a player character was clicked
-                for char in player_characters:
-                    if char.is_clicked(pos):
-                        if selected_character:
-                            selected_character.selected = False  # Deselect previously selected character
-                        selected_character = char
-                        selected_character.selected = True  # Select the clicked character
-                        break
-                else:  # If no player character was clicked
-                    # Check if an enemy was clicked
-                    for char in ai_characters:
+                if burger_menu_rect.collidepoint(pos):
+                    menu_open = not menu_open  # Toggle menu
+                elif menu_open:
+                    if resume_btn_rect.collidepoint(pos):
+                        menu_open = False  # Close menu
+                    elif end_game_btn_rect.collidepoint(pos):
+                        return "main_menu"
+                else:
+                    # Check if a player character was clicked
+                    for char in player_characters:
                         if char.is_clicked(pos):
-                            # Player's attack logic
                             if selected_character:
-                                selected_character.attack(char, screen)
-                                print(f"{selected_character.name} attacks {char.name}")
-                                selected_character.selected = False  # Deselect after attack
-                                selected_character = None
-
-                                # Check if the attacked AI character is dead
-                                if char.hp <= 0:
-                                    ai_characters.remove(char)
-
-                                # Trigger AI attack with a delay after player attacks
-                                if ai_characters:
-                                    
-                                    trigger_ai_attack()
-                                    player_attacked = True
-
+                                selected_character.selected = False  # Deselect previously selected character
+                            selected_character = char
+                            selected_character.selected = True  # Select the clicked character
                             break
+                    else:  # If no player character was clicked
+                        # Check if an enemy was clicked
+                        for char in ai_characters:
+                            if char.is_clicked(pos):
+                                # Player's attack logic
+                                if selected_character:
+                                    selected_character.attack(char, screen)
+                                    print(f"{selected_character.name} attacks {char.name}")
+                                    selected_character.selected = False  # Deselect after attack
+                                    selected_character = None
+
+                                    # Check if the attacked AI character is dead
+                                    if char.hp <= 0:
+                                        ai_characters.remove(char)
+                                        
+
+                                    # Trigger AI attack with a delay after player attacks
+                                    if ai_characters:
+                                        trigger_ai_attack()
+                                        player_attacked = True
+
+                                break
 
         # Check if the game is over
         if not player_characters:
