@@ -4,7 +4,7 @@ from character import Character
 
 pygame.init()
 
-def game_screen(window, player_list, ai_list):
+def game_screen(window, player_list, ai_list,language):
     clock = pygame.time.Clock()
     fps = 60
 
@@ -12,7 +12,7 @@ def game_screen(window, player_list, ai_list):
     screen = pygame.display.set_mode((1600, 800))
     WIDTH, HEIGHT = screen.get_width(), screen.get_height()
     pygame.display.set_caption('Battle')
-
+    
     # Load images
     background_img = pygame.image.load('images/background/battle_ground.jpg').convert_alpha()
     background_img = pygame.transform.scale(background_img, (screen.get_width(), screen.get_height()))
@@ -21,7 +21,11 @@ def game_screen(window, player_list, ai_list):
     burger_menu_img = pygame.transform.scale(burger_menu_img, (50, 50))
 
     # Fonts
-    font = pygame.font.Font(None, 74)
+    
+    font_path = 'font/NotoSansCJK-Regular.otf'  # Adjust path as needed
+    font = pygame.font.Font(font_path, 74)
+
+
     small_font = pygame.font.Font(None, 36)
     # Create a semi-transparent overlay
     overlay = pygame.Surface((WIDTH, HEIGHT))

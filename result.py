@@ -13,8 +13,11 @@ pygame.display.set_caption("End Menu")
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 
-# Fonts
-font = pygame.font.Font(None, 36)
+
+font_path = 'font/NotoSansCJK-Regular.otf'  # Adjust path as needed
+font = pygame.font.Font(font_path, 36)
+
+
 
 def draw_text(text, font, color, surface, x, y):
     text_obj = font.render(text, True, color)

@@ -15,14 +15,14 @@ class Character():
         atk = 0
         defend=0
         if(self.type=="fighter"):
-            atk=(random.randint(5, 20)+(self.lvl*self.lvl))
+            atk=(random.randint(5, 20)+(self.lvl))
         else:
-            atk =random.randint(1,10)+(self.lvl*self.lvl)
+            atk =random.randint(1,10)+(self.lvl)
         
         if(target.type=="fighter"):
-            defend=(random.randint(1, 10)+(target.lvl*target.lvl))
+            defend=(random.randint(1, 10)+(target.lvl))
         else:
-            defend=(random.randint(5, 15)+(target.lvl*target.lvl))
+            defend=(random.randint(5, 15)+(target.lvl))
         
         damage = atk-defend+random.randint(-5, 10)
         print("Damage:{damage}")
@@ -70,7 +70,11 @@ class Character():
         self.last_attack_time = 0
         self.load_images()
         # Load and resize the image
-        img = pygame.image.load(f'images/characters/{self.char_name}/idle.png')
+        if(self.side=="player"):
+            img = pygame.image.load(f"images/characters/{self.char_name}/stand_right.png")
+        else:
+            img = pygame.image.load(f"images/characters/{self.char_name}/stand_left.png")
+       
         small_width, small_height =100, 100  # Set to very small sizes
         self.image = pygame.transform.scale(img, (small_width, small_height))
         
@@ -94,7 +98,10 @@ class Character():
         pygame.draw.rect(screen, border_color, border_rect, 3)  # Draw the border
 
     def load_images(self):
-        idle_image = pygame.image.load(f"images/characters/{self.char_name}/idle.png")
+        if(self.side=="player"):
+            idle_image = pygame.image.load(f"images/characters/{self.char_name}/stand_right.png")
+        else:
+            idle_image = pygame.image.load(f"images/characters/{self.char_name}/stand_left.png")
         small_width, small_height =100, 100  # Set to very small sizes
         self.idle_image = pygame.transform.scale(idle_image, (small_width, small_height))
         

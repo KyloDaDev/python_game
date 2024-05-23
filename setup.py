@@ -15,12 +15,16 @@ RED = (255, 0, 0)
 DARK_GRAY = (169, 169, 169)  # Color for inactive "next" button
 
 background_path = "images/background/setup_background.jpg"
-wukong_path = "images/characters/wukong/idle.png"
-bajie_path = "images/characters/bajie/idle.png"
+wukong_path = "images/characters/wukong/setup.png"
+bajie_path = "images/characters/bajie/setup.png"
 
 window = pygame.display.set_mode((DISPLAY_WIDTH, DISPLAY_HEIGHT))
 
-font = pygame.font.Font(None, 36)
+
+font_path = 'font/NotoSansCJK-Regular.otf'  # Adjust path as needed
+font = pygame.font.Font(font_path, 24)
+
+
 
 def draw_text(text, color, x, y):
     text_surface = font.render(text, True, color)
@@ -52,10 +56,10 @@ class InputBox:
 
         def draw(self, screen):
             pygame.draw.rect(screen, WHITE, self.rect)
-            screen.blit(self.txt_surface, (self.rect.x + 5, self.rect.y + 5))
+            screen.blit(self.txt_surface, (self.rect.x + 5, self.rect.y + 1))
             pygame.draw.rect(screen, self.color, self.rect, 2)
 
-def setup_screen(window):
+def setup_screen(window,language):
 
     background = pygame.image.load(background_path)
     background = pygame.transform.scale(background, (DISPLAY_WIDTH, DISPLAY_HEIGHT))
@@ -166,8 +170,8 @@ def setup_screen(window):
                 box.handle_event(event)
 
         window.blit(background, (0, 0))
-
-        draw_text("Please choose your champion", WHITE, DISPLAY_WIDTH // 2, 50)
+        choose_chpm = "开始" if language == "Chinese" else "Please Choose Your Champion"
+        draw_text(choose_chpm, WHITE, DISPLAY_WIDTH // 2, 50)
         draw_text("(Your team size should be 3-5 champions)", WHITE, DISPLAY_WIDTH // 2, 100)
 
         pygame.draw.rect(window, BLACK, [50, 100, 400, 600])
