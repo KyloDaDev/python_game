@@ -7,7 +7,9 @@ pygame.init()
 def game_screen(window, player_list, ai_list,language):
     clock = pygame.time.Clock()
     fps = 60
-
+    click_sound = pygame.mixer.Sound("sound/click.mp3") 
+    attack_sound = pygame.mixer.Sound("sound/attack.mp3") 
+    die_sound = pygame.mixer.Sound("sound/die.mp3") 
     # Game window
     screen = pygame.display.set_mode((1600, 800))
     WIDTH, HEIGHT = screen.get_width(), screen.get_height()
@@ -41,6 +43,7 @@ def game_screen(window, player_list, ai_list,language):
     
 
     def draw_end_screen(message):
+        
         draw_bg()  # Draw the background instead of the overlay
 
         text = font.render(message, True, (0, 0, 0))
@@ -65,8 +68,10 @@ def game_screen(window, player_list, ai_list,language):
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     mouse_pos = event.pos
                     if restart_btn.collidepoint(mouse_pos):
+                        click_sound.play()
                         return "restart"
                     if main_menu_btn.collidepoint(mouse_pos):
+                        click_sound.play()
                         return "main_menu"
 
     def draw_text(text, font, color, surface, x, y):
@@ -95,11 +100,14 @@ def game_screen(window, player_list, ai_list,language):
                 if ai_characters and player_characters:  # Ensure there are characters to attack
                     ai_attacker = random.choice(ai_characters)
                     player_target = random.choice(player_characters)
+                    attack_sound.play()
                     ai_attacker.attack(player_target, screen)
                     print(f"{ai_attacker.name} attacks {player_target.name}")
                     
                     # Check if the attacked player character is dead
                     if player_target.hp <= 0:
+                        die_sound.play()
+                        print("die")
                         player_characters.remove(player_target)
                         
                     player_attacked = False  # Reset the flag after AI attacks
@@ -131,8 +139,10 @@ def game_screen(window, player_list, ai_list,language):
                 char.update()
             else:
                 if char.side == "player":
+                    
                     player_characters.remove(char)
                 elif char.side == "ai":
+                    
                     ai_characters.remove(char)
 
         # Draw burger menu button
@@ -157,16 +167,20 @@ def game_screen(window, player_list, ai_list,language):
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:  # Left mouse button
                 pos = pygame.mouse.get_pos()
                 if burger_menu_rect.collidepoint(pos):
+                    click_sound.play()
                     menu_open = not menu_open  # Toggle menu
                 elif menu_open:
                     if resume_btn_rect.collidepoint(pos):
+                        click_sound.play()
                         menu_open = False  # Close menu
                     elif end_game_btn_rect.collidepoint(pos):
+                        click_sound.play()
                         return "main_menu"
                 else:
                     # Check if a player character was clicked
                     for char in player_characters:
                         if char.is_clicked(pos):
+                            click_sound.play()
                             if selected_character:
                                 selected_character.selected = False  # Deselect previously selected character
                             selected_character = char
@@ -178,6 +192,7 @@ def game_screen(window, player_list, ai_list,language):
                             if char.is_clicked(pos):
                                 # Player's attack logic
                                 if selected_character:
+                                    attack_sound.play()
                                     selected_character.attack(char, screen)
                                     print(f"{selected_character.name} attacks {char.name}")
                                     selected_character.selected = False  # Deselect after attack
@@ -185,6 +200,7 @@ def game_screen(window, player_list, ai_list,language):
 
                                     # Check if the attacked AI character is dead
                                     if char.hp <= 0:
+                                        die_sound.play()
                                         ai_characters.remove(char)
                                         
 
@@ -197,8 +213,12 @@ def game_screen(window, player_list, ai_list,language):
 
         # Check if the game is over
         if not player_characters:
+            pygame.mixer.music.load("sound/lost.mp3")
+            pygame.mixer.music.play(-1)  
             return draw_end_screen("You Lost!")
         elif not ai_characters:
+            pygame.mixer.music.load("sound/win.mp3")
+            pygame.mixer.music.play(-1)  
             return draw_end_screen("You Win!")
         
         # Update AI attack

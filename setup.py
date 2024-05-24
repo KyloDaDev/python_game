@@ -20,7 +20,7 @@ bajie_path = "images/characters/bajie/setup.png"
 
 window = pygame.display.set_mode((DISPLAY_WIDTH, DISPLAY_HEIGHT))
 
-
+click_sound = pygame.mixer.Sound("sound/click.mp3") 
 font_path = 'font/NotoSansCJK-Regular.otf'  # Adjust path as needed
 font = pygame.font.Font(font_path, 24)
 
@@ -97,13 +97,16 @@ def setup_screen(window,language):
 
     def handle_click(x, y):
         if 50 <= x <= 450 and 100 <= y <= 700 and len(selected_images) < 5:
+            click_sound.play()
             selected_images.append('wukong')
         elif 1150 <= x <= 1550 and 100 <= y <= 700 and len(selected_images) < 5:
+            click_sound.play()
             selected_images.append('bajie')
         else:
             for i, pos in enumerate(positions[:len(selected_images)]):
                 img_rect = pygame.Rect(pos[0], pos[1], 100, 100)
                 if img_rect.collidepoint(x, y):
+                    click_sound.play()
                     selected_images.pop(i)
                     input_boxes[i].text = ""  # Clear the name when the image is removed
                     break
@@ -165,6 +168,7 @@ def setup_screen(window,language):
 
                     return "game",player_characters,ai_characters
                 if back_button_rect.collidepoint(mouse_x, mouse_y):
+                    click_sound.play()
                     return  "main_menu",[],[]
             for box in input_boxes:
                 box.handle_event(event)

@@ -5,7 +5,13 @@ from setup import setup_screen
 
 # Initialize Pygame
 pygame.init()
+# Initialize Pygame mixer
+pygame.mixer.init()
 
+pygame.mixer.music.load("sound/main.mp3")
+pygame.mixer.music.play(-1)  
+# Load click sound
+click_sound = pygame.mixer.Sound("sound/click.mp3") 
 # Set up the screen
 screen = pygame.display.set_mode((1600, 800))
 WIDTH, HEIGHT = screen.get_width(), screen.get_height()
@@ -66,9 +72,11 @@ def draw_setting_page():
     for event in pygame.event.get():
         if event.type == pygame.MOUSEBUTTONDOWN:
             if back_button.collidepoint(event.pos):
+                click_sound.play()
                 current_screen = "main_menu"  # Return to the main menu when back button is clicked
             for lang, rect in language_buttons.items():
                 if rect.collidepoint(event.pos):
+                    click_sound.play()
                     selected_language = lang  # Update selected language
 
 def mainMenu():
@@ -76,7 +84,7 @@ def mainMenu():
     text_start = "开始" if selected_language == "Chinese" else "Start"
     text_options = "选项" if selected_language == "Chinese" else "Options"
     text_quit = "退出" if selected_language == "Chinese" else "Quit"
-
+    
     # Draw the buttons
     pygame.draw.rect(screen, WHITE, start_button)
     pygame.draw.rect(screen, WHITE, option_button)
@@ -105,10 +113,13 @@ while True:
             mouse_pos = pygame.mouse.get_pos()
             if current_screen == "main_menu":
                 if start_button.collidepoint(mouse_pos):
+                    click_sound.play()
                     current_screen = "start_game"
                 elif option_button.collidepoint(mouse_pos):
+                    click_sound.play()
                     current_screen = "settings_menu"
                 elif quit_button.collidepoint(mouse_pos):
+                    click_sound.play()
                     pygame.quit()
                     sys.exit()
             elif current_screen == "settings_menu":
@@ -122,11 +133,19 @@ while True:
     # Draw the background
     screen.blit(background_image, (0, 0))
     if current_screen == "main_menu":
+        # Load and play background music
+        
+          
         current_screen = mainMenu()
     elif current_screen == "start_game":
+        # Load and play background music  
         current_screen, player_list, ai_list = setup_screen(screen,selected_language)
     elif current_screen == "game":
+        pygame.mixer.music.load("sound/battle.mp3")  # Load battle music
+        pygame.mixer.music.play(-1)
         result = game_screen(screen, player_list, ai_list,selected_language)
+        pygame.mixer.music.load("sound/main.mp3")
+        pygame.mixer.music.play(-1)
         if result in ["restart", "main_menu"]:
             current_screen = result
     elif current_screen in ["restart"]:
