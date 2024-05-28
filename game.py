@@ -28,7 +28,7 @@ def game_screen(window, player_list, ai_list,language):
     font = pygame.font.Font(font_path, 74)
 
 
-    small_font = pygame.font.Font(None, 36)
+    small_font = pygame.font.Font(font_path, 36)
     # Create a semi-transparent overlay
     overlay = pygame.Surface((WIDTH, HEIGHT))
     overlay.set_alpha(80)  # Adjust the transparency level (0-255)
@@ -42,7 +42,7 @@ def game_screen(window, player_list, ai_list,language):
 
     
 
-    def draw_end_screen(message):
+    def draw_end_screen(message,language):
         
         draw_bg()  # Draw the background instead of the overlay
 
@@ -54,9 +54,11 @@ def game_screen(window, player_list, ai_list,language):
         main_menu_btn = pygame.Rect(WIDTH // 4, HEIGHT // 2 + 100, WIDTH // 2, 50)
 
         pygame.draw.rect(screen, (0, 0, 0), restart_btn)
-        draw_text("Restart", small_font, (255, 255, 255), screen, WIDTH // 2, HEIGHT // 2 + 25)
+        restart_txt="重新开始" if language == "Chinese" else "Restart"    #TODO
+        draw_text(restart_txt, small_font, (255, 255, 255), screen, WIDTH // 2, HEIGHT // 2 + 25)
         pygame.draw.rect(screen, (0, 0, 0), main_menu_btn)
-        draw_text("Main Menu", small_font, (255, 255, 255), screen, WIDTH // 2, HEIGHT // 2 + 125)
+        mainmeu_txt="主菜单" if language == "Chinese" else "Mainmenu"    #TODO
+        draw_text(mainmeu_txt, small_font, (255, 255, 255), screen, WIDTH // 2, HEIGHT // 2 + 125)
 
         pygame.display.update()
 
@@ -157,9 +159,11 @@ def game_screen(window, player_list, ai_list,language):
             screen.blit(overlay, (0, 0))
 
             pygame.draw.rect(screen, (255, 255, 255), resume_btn_rect)
-            draw_text("Resume", small_font, (0, 0, 0), screen, resume_btn_rect.centerx, resume_btn_rect.centery)
+            resume_txt ="恢复游戏" if language == "Chinese" else "Resume"    #TODO
+            draw_text(resume_txt, small_font, (0, 0, 0), screen, resume_btn_rect.centerx, resume_btn_rect.centery)
             pygame.draw.rect(screen, (255, 255, 255), end_game_btn_rect)
-            draw_text("End Game", small_font, (0, 0, 0), screen, end_game_btn_rect.centerx, end_game_btn_rect.centery)
+            endgame_txt="结束游戏" if language == "Chinese" else "End Game"    #TODO
+            draw_text(endgame_txt, small_font, (0, 0, 0), screen, end_game_btn_rect.centerx, end_game_btn_rect.centery)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -215,11 +219,11 @@ def game_screen(window, player_list, ai_list,language):
         if not player_characters:
             pygame.mixer.music.load("sound/lost.mp3")
             pygame.mixer.music.play(-1)  
-            return draw_end_screen("You Lost!")
+            return draw_end_screen("再接再厉，下次胜利"if language == "Chinese" else "You Lost!",language)
         elif not ai_characters:
             pygame.mixer.music.load("sound/win.mp3")
             pygame.mixer.music.play(-1)  
-            return draw_end_screen("You Win!")
+            return draw_end_screen("大吉大利今晚吃鸡"if language == "Chinese" else "You Win!",language)
         
         # Update AI attack
         update_ai_attack()

@@ -17,7 +17,7 @@ screen = pygame.display.set_mode((1600, 800))
 WIDTH, HEIGHT = screen.get_width(), screen.get_height()
 background_image = pygame.image.load("images/background/battle_ground.jpg").convert()
 background_image = pygame.transform.scale(background_image, (WIDTH, HEIGHT))
-
+ 
 # Set up colors and fonts
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
@@ -33,14 +33,14 @@ button_spacing = 20
 start_button = pygame.Rect((WIDTH - button_width) // 2, HEIGHT // 2 - button_height * 2 - button_spacing * 2, button_width, button_height)
 option_button = pygame.Rect((WIDTH - button_width) // 2, HEIGHT // 2, button_width, button_height)
 quit_button = pygame.Rect((WIDTH - button_width) // 2, HEIGHT // 2 + button_height * 2 + button_spacing * 2, button_width, button_height)
-back_button = pygame.Rect(20, 20, 100, 30)  # Smaller back button in the top left
+back_button = pygame.Rect(20, 20, 100, 40)  # Smaller back button in the top left
 
 language_buttons = {
     "Chinese": pygame.Rect((WIDTH - button_width) // 2, HEIGHT // 2 - button_height - button_spacing, button_width, button_height),
     "English": pygame.Rect((WIDTH - button_width) // 2, HEIGHT // 2 + button_height + button_spacing, button_width, button_height)
 }
 
-selected_language = None  # Initially no language selected
+selected_language = "English"  # Initially no language selected
 current_screen = "main_menu"  # Initial screen state
 
 def draw_text(text, font, color, surface, x, y):
@@ -49,23 +49,44 @@ def draw_text(text, font, color, surface, x, y):
     text_rect.center = (x, y)
     surface.blit(text_obj, text_rect)
 
+# Function to draw setting page
 def draw_setting_page():
     global current_screen, selected_language
-    screen.fill(WHITE)
+
+    # Draw background image
+    background_image = pygame.image.load("images/background/battle_ground.jpg").convert()
+    background_image = pygame.transform.scale(background_image, (WIDTH, HEIGHT))
+    screen.blit(background_image, (0, 0))
+
+    # Add dark overlay
+   
+    overlay = pygame.Surface((1600, 800))
+    overlay.set_alpha(80)  # Adjust the transparency level (0-255)
+    overlay.fill((0, 0, 0))  # Black color for the overlay
+    screen.blit(overlay, (0, 0))
 
     # Determine text based on selected language
     text_back = "返回" if selected_language == "Chinese" else "Back"
 
-    # Draw back button
-    back_text = font.render(text_back, True, BLACK)
+    # Draw back button with dynamic color
+    back_text_color = BLACK 
+    back_bg_color = WHITE 
+    pygame.draw.rect(screen, back_bg_color, back_button)
+    back_text = font.render(text_back, True, back_text_color)
     screen.blit(back_text, back_text.get_rect(center=back_button.center))
 
     # Draw language options with selection effect
     for lang, rect in language_buttons.items():
         text = "中文" if lang == "Chinese" and selected_language == "Chinese" else "English" if lang == "English" and selected_language == "Chinese" else lang
-        color = GREEN if selected_language == lang else BLUE
-        pygame.draw.rect(screen, color, rect)
-        text_surf = font.render(text, True, BLACK)
+        is_selected = selected_language == lang
+        bg_color = WHITE if is_selected else (255, 255, 255, 100)   # Dark with opacity
+         # Create a surface for the button background
+        button_bg = pygame.Surface(rect.size, pygame.SRCALPHA)
+        button_bg.fill(bg_color)
+        screen.blit(button_bg, rect.topleft)
+        text_color = BLACK
+        
+        text_surf = font.render(text, True, text_color)
         screen.blit(text_surf, text_surf.get_rect(center=rect.center))
 
     # Process input
@@ -78,6 +99,7 @@ def draw_setting_page():
                 if rect.collidepoint(event.pos):
                     click_sound.play()
                     selected_language = lang  # Update selected language
+
 
 def mainMenu():
     # Update texts based on selected language before drawing

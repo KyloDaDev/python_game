@@ -174,36 +174,46 @@ def setup_screen(window,language):
                 box.handle_event(event)
 
         window.blit(background, (0, 0))
-        choose_chpm = "开始" if language == "Chinese" else "Please Choose Your Champion"
+        choose_chpm = "请选择你的英雄" if language == "Chinese" else "Please Choose Your Champion"    #TODO
+        teamsize_warning = "你的队伍人数应该在三至五个人之间" if language == "Chinese" else "(Your team size should be 3-5 champions)"#TODO
         draw_text(choose_chpm, WHITE, DISPLAY_WIDTH // 2, 50)
-        draw_text("(Your team size should be 3-5 champions)", WHITE, DISPLAY_WIDTH // 2, 100)
+        draw_text(teamsize_warning, WHITE, DISPLAY_WIDTH // 2, 100)
 
         pygame.draw.rect(window, BLACK, [50, 100, 400, 600])
         window.blit(wukong_image, wukong_rect)
-        draw_text("WUKONG the great sage", WHITE, 250, 400)
-        draw_text("ATK : 5 - 20", WHITE, 250, 450)
-        draw_text("DEF : 1 - 10", WHITE, 250, 500)
+        wukong_title = "齐天大圣" if language == "Chinese" else "WUKONG the great sage"#TODO
+        draw_text(wukong_title, WHITE, 250, 400)
+        atk_wk="伤害值：五至二十" if language == "Chinese" else "ATK : 5 - 20"#TODO
+        draw_text(atk_wk, WHITE, 250, 450)
+        def_wk="防御值：一至十" if language == "Chinese" else "DEF : 1 - 10"#TODO
+        draw_text(def_wk, WHITE, 250, 500)
 
         pygame.draw.rect(window, BLACK, [1150, 100, 400, 600])
         window.blit(bajie_image, bajie_rect)
-        draw_text("BAJIE the marshal canopy", WHITE, 1350, 400)
-        draw_text("ATK : 1 - 10", WHITE, 1350, 450)
-        draw_text("DEF : 5 - 15", WHITE, 1350, 500)
+        bajie_title = "天蓬元帅" if language == "Chinese" else "BAJIE the marshal canopy"#TODO
+        draw_text(bajie_title, WHITE, 1350, 400)
+        atk_bjie="伤害值 : 一至十" if language == "Chinese" else "ATK : 1 - 10"#TODO
+        draw_text(atk_bjie, WHITE, 1350, 450)
+        def_bjie="防御值 : 五至十五" if language == "Chinese" else "DEF : 5 - 15"#TODO
+        draw_text(def_bjie, WHITE, 1350, 500)
 
         pygame.draw.rect(window, GRAY, [50, 700, 1500, 200])
-        draw_text('Click the "next" button to go next', WHITE, DISPLAY_WIDTH // 2, 750)
+        go_next="点击继续开始游戏" if language == "Chinese" else 'Click the "next" button to go next'#TODO
+        draw_text(go_next, WHITE, DISPLAY_WIDTH // 2, 750)
 
         draw_selected_images()
 
         pygame.draw.rect(window, RED, back_button_rect)
-        draw_text("<back", WHITE, back_button_rect.centerx, back_button_rect.centery)
-
+        back_txt= "返回" if language == "Chinese" else '<back'#TODO
+        draw_text(back_txt, WHITE, back_button_rect.centerx, back_button_rect.centery)
+        next_txt= "继续" if language == "Chinese" else 'next>'#TODO
         if len(selected_images) >= 3:
             pygame.draw.rect(window, RED, next_button_rect)
-            draw_text("next>", WHITE, next_button_rect.centerx, next_button_rect.centery)
+           
+            draw_text(next_txt, WHITE, next_button_rect.centerx, next_button_rect.centery)
         else:
             pygame.draw.rect(window, DARK_GRAY, next_button_rect)
-            draw_text("next>", WHITE, next_button_rect.centerx, next_button_rect.centery)
+            draw_text(next_txt, WHITE, next_button_rect.centerx, next_button_rect.centery)
 
         pygame.display.flip()
 
